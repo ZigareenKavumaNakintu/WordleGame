@@ -16,7 +16,7 @@
             </Grid>
 
             <Button x:Name="Submit" Text="SUBMIT WORD" Clicked="Submit_Clicked" HorizontalOptions="CenterAndExpand"/>
-
+            <Button x:Name="Restart" Text="START A NEW GAME" Clicked="Restart_Clicked" HorizontalOptions="CenterAndExpand"/>
 
         </VerticalStackLayout>
     </ScrollView>

@@ -6,6 +6,8 @@ public partial class gamePage : ContentPage
     private int cols = 5;
     private int rows = 6;
     private int guess = 0;
+   // bool isWin = true;
+  
     private GameViewModel viewModel;
 
     public gamePage()
@@ -83,7 +85,7 @@ public partial class gamePage : ContentPage
         }
 
     }
-
+    // method is faulty
     //method to automatically move to the next entry in a row to input a letter
     private  async void OnEntryTextChanged(object? sender, TextChangedEventArgs args, int row, int col)
     {
@@ -124,6 +126,7 @@ public partial class gamePage : ContentPage
             currentEntry.Focus();
         }
     }
+    
 
     //method to make the letters into a string and form a word meant to be a guess
     private async Task<string> formWord(int rowNumber)
@@ -189,6 +192,7 @@ public partial class gamePage : ContentPage
 
             if (child is Frame frame && Grid.GetRow(frame) == row && Grid.GetColumn(frame) == col)
             {
+
                 return frame;
             }
         }
@@ -205,7 +209,7 @@ public partial class gamePage : ContentPage
         }
 
         string correctWord = viewModel.currentWord.ToLower();
-
+        int greenCount = 0;
         //iterate through the 5 columns and check if every latter corresponds with the letter in the correct words and apply the logic
         for (int col = 0; col < cols; col++)
         {
@@ -216,14 +220,15 @@ public partial class gamePage : ContentPage
                 //make sure the letter is set to lower case incase of invalid userinput
                 string inputLetter = letterEntry.Text?.Trim().ToLower();
 
-                if (inputLetter.Length == 1)
+                if (!string.IsNullOrEmpty(inputLetter) && inputLetter.Length == 1)
                 {
                     {
-                        System.Diagnostics.Debug.WriteLine($"Correct Word Letter: {correctWord[col]}");
+                        //System.Diagnostics.Debug.WriteLine($"Correct Word Letter: {correctWord[col]}");
                         if (inputLetter == correctWord[col].ToString())
                         {
                             letterEntry.BackgroundColor = Colors.Green;
                             gameFrame.BackgroundColor = Colors.Green;
+                            greenCount++;//keeps track of the entries that change to green
                         }
 
                         else if (correctWord.Contains(inputLetter))
@@ -242,22 +247,108 @@ public partial class gamePage : ContentPage
 
             }
         }
+        //if all the letters are correct then end the bgame and the player wins
+        if(greenCount == cols)
+        {
+            await EndGame(rowNumber,true);
+        }
+      
     }
 
 
-        private async void Submit_Clicked(object sender, EventArgs e)
+    private async void Submit_Clicked(object sender, EventArgs e)
+    {
+        await CompareWords(guess);
+      //  await EndGame(guess);
+       
+        //makes the player input on the next row
+        if (guess < rows - 1)
         {
-            await CompareWords(guess);
             guess++;
+            var newFrame = getPosition(guess, 0);
+            var nextEntry = newFrame?.Content as Entry;
+            nextEntry?.Focus();
+        }
 
-            if (guess < rows)
+        //if the player has finished all their guesses end the game
+        else if(guess >= rows - 1)
+        {
+            try
             {
-                var newFrame = getPosition(guess, 0);
-                var nextEntry = newFrame?.Content as Entry;
-                nextEntry?.Focus();
+                await EndGame(rows, false);
+            }
+            catch (Exception ex)
+            {
+               await Shell.Current.DisplayAlert("Error in EndGame:", ex.Message,"OK");
+
+            }
+        }
+    }
+
+    //method to end the game
+    private async Task EndGame(int rowNumber, bool isWin)
+    {
+        if (isWin)
+        {
+            await Shell.Current.DisplayAlert("Game Over", $"Well Done. You took {rowNumber + 1} guesses", "ok");
+
+        }
+        else
+        {
+            await Shell.Current.DisplayAlert("Game Over" ,$"Bad Luck. The word was {viewModel.currentWord}", "OK");
+
+        }
+      
+
+        foreach (var frame in GridContent.Children.OfType<Frame>()) {
+            var input = frame.Content as Entry;
+
+            if (input != null)
+            {
+                //stop the entries into the next row after ending game
+                input.IsEnabled = false;
             }
         }
 
+        //disable the button
+        Submit.IsEnabled = false;
+
     }
+
+    private void ResetGame()
+    {
+        guess = 0;
+        //greenCount = 0;
+
+        //clear the grid and start the game again
+        foreach (var frame in GridContent.Children.OfType<Frame>())
+        {
+            var input = frame.Content as Entry;
+
+            if (input != null)
+            {
+               
+                input.IsEnabled = true;
+                input.Text = string.Empty;
+                input.BackgroundColor = Colors.Transparent;
+                ((Frame)frame).BackgroundColor = Colors.Transparent;
+            }
+        }
+
+        viewModel.MakeWordList();
+        makeGrid();
+        
+        //re-enable the button
+        Submit.IsEnabled = true;
+      
+    }
+
+    
+    private void Restart_Clicked(object sender, EventArgs e)
+    {
+        ResetGame();
+
+    }
+}
 
 
