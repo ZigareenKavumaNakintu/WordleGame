@@ -10,7 +10,8 @@
        <Label Text="Wordle Game" FontSize="24" HorizontalOptions="Center" />
 
             <!-- Display the list of words -->
-            <Label Text="{Binding currentWord}" FontSize="40" HorizontalOptions="Center" />
+           
+            <Button x:Name="StartGame" Text="START GAME" Clicked="StartGame_Clicked" HorizontalOptions="CenterAndExpand"/>
         </VerticalStackLayout>
     </ScrollView>
 

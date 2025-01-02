@@ -12,7 +12,10 @@
             BindingContext = viewModel;
            
         }
-      
 
+        private  async void StartGame_Clicked(object sender, EventArgs e)
+        {
+            await Navigation.PushAsync(new gamePage());
+        }
     }
 }

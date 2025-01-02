@@ -5,8 +5,19 @@
              xmlns:viewmodel ="clr-namespace:WordleGame"
              x:DataType="viewmodel:GameViewModel"
              Title="gamePage">
-    <VerticalStackLayout>
-       
-        
-    </VerticalStackLayout>
+    <ScrollView>
+
+        <VerticalStackLayout>
+            <Label Text="{Binding currentWord}" FontSize="40" HorizontalOptions="Center" />
+            <Grid x:Name="GridContent" BackgroundColor="Transparent"
+        HeightRequest="400" WidthRequest="500"
+        HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand" RowSpacing="6" ColumnSpacing="6" Padding="6">
+
+            </Grid>
+
+            <Button x:Name="Submit" Text="SUBMIT WORD" Clicked="Submit_Clicked" HorizontalOptions="CenterAndExpand"/>
+
+
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>
